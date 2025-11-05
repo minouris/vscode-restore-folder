@@ -29,13 +29,15 @@
   },
   "homepage": "https://github.com/minouris/vscode-restore-folder#readme",
   "license": "MIT",
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "minouris-local-history-restore.listDeleted",
-        "title": "List Deleted Files and Folders",
+        "title": "Refresh",
         "category": "Local History Restore",
         "icon": "$(refresh)"
       },
@@ -48,6 +50,11 @@
       {
         "command": "minouris-local-history-restore.restoreItem",
         "title": "Restore Item",
+        "icon": "$(file-add)"
+      },
+      {
+        "command": "minouris-local-history-restore.restoreFolder",
+        "title": "Restore Folder",
         "icon": "$(file-add)"
       }
     ],
@@ -75,14 +82,19 @@
         {
           "command": "minouris-local-history-restore.listDeleted",
           "when": "view == deletedItems",
-          "group": "navigation"
+          "group": "navigation@1"
         }
       ],
       "view/item/context": [
         {
           "command": "minouris-local-history-restore.restoreItem",
           "when": "view == deletedItems && viewItem == deletedItem",
-          "group": "inline"
+          "group": "inline@1"
+        },
+        {
+          "command": "minouris-local-history-restore.restoreFolder",
+          "when": "view == deletedItems && viewItem == deletedFolder",
+          "group": "inline@1"
         }
       ]
     }
