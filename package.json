@@ -1,0 +1,109 @@
+{
+  "name": "minouris-local-history-restore",
+  "displayName": "Local History Restore",
+  "description": "Restore deleted files and folders from VS Code's local history",
+  "version": "0.0.1",
+  "publisher": "minouris",
+  "engines": {
+    "vscode": "^1.105.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "restore",
+    "deleted",
+    "files",
+    "folders",
+    "local history",
+    "backup",
+    "recovery",
+    "undelete"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/minouris/vscode-restore-folder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/minouris/vscode-restore-folder/issues"
+  },
+  "homepage": "https://github.com/minouris/vscode-restore-folder#readme",
+  "license": "MIT",
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "minouris-local-history-restore.listDeleted",
+        "title": "List Deleted Files and Folders",
+        "category": "Local History Restore",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "minouris-local-history-restore.restoreSelected",
+        "title": "Restore Selected Items",
+        "category": "Local History Restore",
+        "icon": "$(file-directory)"
+      },
+      {
+        "command": "minouris-local-history-restore.restoreItem",
+        "title": "Restore Item",
+        "icon": "$(file-add)"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "deletedItems",
+          "name": "Deleted Items",
+          "when": "workspaceFolderCount > 0"
+        }
+      ]
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "minouris-local-history-restore.listDeleted",
+          "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "minouris-local-history-restore.restoreSelected",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "minouris-local-history-restore.listDeleted",
+          "when": "view == deletedItems",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "minouris-local-history-restore.restoreItem",
+          "when": "view == deletedItems && viewItem == deletedItem",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.105.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
+    "eslint": "^9.36.0",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
