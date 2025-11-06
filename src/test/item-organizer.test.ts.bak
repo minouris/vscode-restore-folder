@@ -1,0 +1,75 @@
+const expect = require('chai').expect;
+const ItemOrganizer = require('../item-organizer').ItemOrganizer;
+
+describe('ItemOrganizer', () => {
+  it('should organize flat deleted items into hierarchical structure', () => {
+    const workspaceRoot = '/workspace';
+    const organizer = new ItemOrganizer(workspaceRoot);
+
+    const items = [
+      { uri: { fsPath: '/workspace/a.txt' }, relativePath: 'a.txt', isDirectory: false, deletionTime: new Date('2020-01-01') },
+      { uri: { fsPath: '/workspace/folder/b.txt' }, relativePath: 'folder/b.txt', isDirectory: false, deletionTime: new Date('2020-02-01') },
+      { uri: { fsPath: '/workspace/folder/sub/c.txt' }, relativePath: 'folder/sub/c.txt', isDirectory: false, deletionTime: new Date('2020-03-01') }
+    ];
+
+    const organized = organizer.organizeItemsByFolder(items);
+    // Expect top-level to include a.txt and folder
+    expect(organized.some((i: any) => i.relativePath === 'a.txt')).to.be.true;
+    expect(organized.some((i: any) => i.relativePath === 'folder')).to.be.true;
+
+    const folder = organized.find((i: any) => i.relativePath === 'folder');
+    expect(folder.children).to.exist;
+    // folder should contain b.txt and a subfolder 'folder/sub'
+    expect(folder.children.some((c: any) => c.relativePath === 'folder/b.txt')).to.be.true;
+  });
+});
+const expect = require('chai').expect;
+const ItemOrganizer = require('../item-organizer').ItemOrganizer;
+
+describe('ItemOrganizer', () => {
+  it('should organize flat deleted items into hierarchical structure', () => {
+    const workspaceRoot = '/workspace';
+    const organizer = new ItemOrganizer(workspaceRoot);
+
+    const items = [
+      { uri: { fsPath: '/workspace/a.txt' }, relativePath: 'a.txt', isDirectory: false, deletionTime: new Date('2020-01-01') },
+      { uri: { fsPath: '/workspace/folder/b.txt' }, relativePath: 'folder/b.txt', isDirectory: false, deletionTime: new Date('2020-02-01') },
+      { uri: { fsPath: '/workspace/folder/sub/c.txt' }, relativePath: 'folder/sub/c.txt', isDirectory: false, deletionTime: new Date('2020-03-01') }
+    ];
+
+    const organized = organizer.organizeItemsByFolder(items);
+    // Expect top-level to include a.txt and folder
+    expect(organized.some((i) => i.relativePath === 'a.txt')).to.be.true;
+    expect(organized.some((i) => i.relativePath === 'folder')).to.be.true;
+
+    const folder = organized.find((i) => i.relativePath === 'folder');
+    expect(folder.children).to.exist;
+    // folder should contain b.txt and a subfolder 'folder/sub'
+    expect(folder.children.some((c) => c.relativePath === 'folder/b.txt')).to.be.true;
+  });
+});
+const expect = require('chai').expect;
+const ItemOrganizer = require('../item-organizer').ItemOrganizer;
+
+describe('ItemOrganizer', () => {
+  it('should organize flat deleted items into hierarchical structure', () => {
+    const workspaceRoot = '/workspace';
+    const organizer = new ItemOrganizer(workspaceRoot);
+
+    const items = [
+      { uri: { fsPath: '/workspace/a.txt' }, relativePath: 'a.txt', isDirectory: false, deletionTime: new Date('2020-01-01') },
+      { uri: { fsPath: '/workspace/folder/b.txt' }, relativePath: 'folder/b.txt', isDirectory: false, deletionTime: new Date('2020-02-01') },
+      { uri: { fsPath: '/workspace/folder/sub/c.txt' }, relativePath: 'folder/sub/c.txt', isDirectory: false, deletionTime: new Date('2020-03-01') }
+    ];
+
+  const organized = organizer.organizeItemsByFolder(items);
+    // Expect top-level to include a.txt and folder
+    expect(organized.some(i => i.relativePath === 'a.txt')).to.be.true;
+    expect(organized.some(i => i.relativePath === 'folder')).to.be.true;
+
+    const folder = organized.find((i: any) => i.relativePath === 'folder');
+  expect(folder.children).to.exist;
+  // folder should contain b.txt and a subfolder 'folder/sub'
+    expect(folder.children.some((c: any) => c.relativePath === 'folder/b.txt')).to.be.true;
+  });
+});

@@ -105,17 +105,28 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+  "test:unit": "NODE_PATH=./test/helpers mocha -r ts-node/register 'src/test/**/*.ts' --exit",
+  "test:cov": "NODE_PATH=./test/helpers c8 mocha -r ts-node/register 'src/test/**/*.ts'"
   },
   "devDependencies": {
-    "@types/vscode": "^1.105.0",
+    "@types/chai": "^5.2.3",
     "@types/mocha": "^10.0.10",
+    "@types/mock-fs": "^4.13.4",
     "@types/node": "22.x",
+    "@types/sinon": "^17.0.4",
+    "@types/vscode": "^1.105.0",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
-    "eslint": "^9.36.0",
-    "typescript": "^5.9.3",
     "@vscode/test-cli": "^0.0.11",
-    "@vscode/test-electron": "^2.5.2"
+    "@vscode/test-electron": "^2.5.2",
+    "chai": "^4.3.8",
+    "eslint": "^9.36.0",
+    "mocha": "^10.2.0",
+    "mock-fs": "^5.2.0",
+    "sinon": "^15.2.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.9.3",
+    "c8": "^8.0.0"
   }
 }

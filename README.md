@@ -1,3 +1,104 @@
+# VS Code Restore Folder
+
+A small VS Code extension that discovers deleted files and folders from VS Code local history and allows restoring them into the workspace.
+
+This repository contains the extension source (TypeScript), focused unit tests (Mocha + Chai + Sinon), and test helpers to run the extension code under Node for fast unit testing.
+
+## What's in the repo
+- `src/` - TypeScript source files for the extension
+- `src/test/` - Unit tests (Mocha + ts-node) with focused coverage across modules
+- `test/helpers/vscode/` - Minimal `vscode` runtime stub used by tests (loaded via NODE_PATH)
+- `package.json` - scripts and devDependencies used for build/test/package
+
+## Development
+
+Prerequisites: Node.js (16+ recommended), npm.
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Build (TypeScript compile):
+
+```bash
+npm run compile
+```
+
+Note: TypeScript compilation is used for packaging. Unit tests run via ts-node and do not require a full `npm run compile` step during development.
+
+## Running unit tests
+
+Tests are written in TypeScript and run under Mocha + ts-node. The test runner uses a small `vscode` stub located in `test/helpers/vscode` so tests run in plain Node.
+
+Run unit tests:
+
+```bash
+# use NODE_PATH so `require('vscode')` resolves to the test helper
+NODE_PATH=./test/helpers mocha -r ts-node/register 'src/test/**/*.ts' --exit
+```
+
+Run coverage (c8):
+
+```bash
+NODE_PATH=./test/helpers c8 mocha -r ts-node/register 'src/test/**/*.ts'
+```
+
+Notes:
+- Tests avoid touching your real filesystem when possible by using `mock-fs` or stubbing `FileSystemUtils`.
+- Some tests set up fake workspace folders by assigning `vscode.workspace.workspaceFolders` to test values.
+
+## Project structure & key modules
+
+- `backup-scanner.ts` — discovers entries in VS Code local history and creates `DeletedItem` records.
+- `deleted-items-provider.ts` — `TreeDataProvider` that exposes deleted items to the Explorer view.
+- `item-organizer.ts` — organizes flat lists into a hierarchical tree.
+- `file-restorer.ts` — logic to restore single files, empty directories, and recursively restore folders.
+- `file-watcher-manager.ts` — creates `FileSystemWatcher` objects and performs debounced refreshes.
+- `file-system-utils.ts` — small helpers wrapping fs operations and URI normalization.
+
+## Packaging the extension (how to create a .vsix)
+
+High-level steps to create a VSIX for the extension:
+
+1. Ensure `package.json` has the correct `name`, `version`, `publisher`, `engines.vscode` and `activationEvents` fields.
+2. Build/compile the TypeScript sources:
+
+```bash
+npm run compile
+```
+
+3. Install `vsce` if you don't have it (globally or use npx):
+
+```bash
+npx vsce package
+```
+
+This will produce a `.vsix` file which can be installed locally or published.
+
+Publishing to the Marketplace requires a publisher account and credentials; see `vsce` docs for details.
+
+Helpful packaging notes
+- Make sure `out/extension.js` (the compiled extension entry) is listed in your `files`/`package.json` if you restrict published files.
+- Prefer using `npx vsce package` (no global install required).
+- If you want CI-based publishing, create a GitHub Action that runs `npm ci`, `npm run compile`, and `npx vsce publish --pat $VSCE_PAT` with a Personal Access Token stored in secrets.
+
+## Troubleshooting tests
+- If tests fail under Node complaining about `vscode` not found, ensure you run tests with the `NODE_PATH=./test/helpers` prefix so the `vscode` stub is resolved.
+- If a test uses fake timers (sinon), ensure timers are restored in the test tear-down to avoid affecting other tests.
+
+## Next steps and packaging help
+If you'd like, I can:
+
+- Prepare a small `package.json` packaging script (e.g. `npm run package` that runs `npm run compile && npx vsce package`).
+- Add a CI workflow for building and optionally publishing the extension.
+- Run a final audit to ensure the `package.json` extension manifest fields (publisher, name, displayName, repository, engines.vscode) are present and valid.
+
+Tell me which of these you'd like to do next and I'll implement it.
+
+---
+README last updated: automated by test/coverage iteration
 # Local History Restore - VS Code Extension
 
 A VS Code extension that helps you restore deleted files and folders from VS Code's local history. Never lose your work again!
