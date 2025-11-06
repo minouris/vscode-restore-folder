@@ -95,6 +95,52 @@ If you'd like, I can:
 - Add a CI workflow for building and optionally publishing the extension.
 - Run a final audit to ensure the `package.json` extension manifest fields (publisher, name, displayName, repository, engines.vscode) are present and valid.
 
+## Devcontainer: corporate TLS, CA certs and proxy build args
+
+If you're developing behind a corporate TLS-intercepting proxy (for example Zscaler) you'll need to ensure the devcontainer build and npm can validate your company's CA. Two options are supported in this repository:
+
+- Provide CA files in the repo build context under `.devcontainer/certs/` (the Dockerfile will copy and install these at build time).
+- Or mount host CA files into the container at runtime and run the post-create script which installs them into the container trust store.
+
+Build-time notes (current Dockerfile behavior)
+- The Dockerfile copies any files found in `.devcontainer/certs/` into `/usr/local/share/ca-certificates/`, ensures they have a `.crt` extension, concatenates them into `/usr/local/share/ca-certificates/combined-ca.crt`, runs `update-ca-certificates`, and sets the following environment variables so Node/npm use the combined CA bundle during build-time installs:
+
+	- `NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/combined-ca.crt`
+	- `NPM_CONFIG_CAFILE=/usr/local/share/ca-certificates/combined-ca.crt`
+
+Example: add your corporate root CA(s) to the repo (or symlink them) as PEM/CRT files:
+
+```bash
+mkdir -p .devcontainer/certs
+cp /path/to/your-corporate-root-ca.pem .devcontainer/certs/Zscaler_Root_CA.pem
+```
+
+Then build the devcontainer image (mirrors what VS Code Remote - Containers does):
+
+```bash
+docker build --no-cache -f .devcontainer/Dockerfile -t vrf-devcontainer:debug --build-arg NODE_VERSION=20 /path/to/repo
+```
+
+Proxy build args
+- If your environment requires an HTTP/HTTPS proxy to reach the registry, pass `HTTP_PROXY` and `HTTPS_PROXY` as build args. The Dockerfile forwards them into the image environment, for example:
+
+```bash
+docker build --no-cache \
+	--build-arg NODE_VERSION=20 \
+	--build-arg HTTP_PROXY="http://proxy.company:8080" \
+	--build-arg HTTPS_PROXY="http://proxy.company:8080" \
+	-f .devcontainer/Dockerfile -t vrf-devcontainer:debug /path/to/repo
+```
+
+Runtime (post-create) alternative
+- If you prefer not to include corporate certs in the image build context, you can mount them from the host into the container at runtime and let the `.devcontainer/post-create.sh` script install them and then run any npm installations (the script already looks for common paths and installs certs).
+
+Which approach to use?
+- Build-time install (default in this repo): ensures `npm install -g vsce` and other global installs succeed during the image build. Use this when you want a self-contained image that can run without host mounts.
+- Post-create (runtime) install: safer when you don't want secrets or corporate certs in the image build context. To prefer this, remove the global `vsce` install from the Dockerfile and add it to `post-create.sh` — the repo already contains a post-create script that installs certs and runs `npm install` for project dependencies.
+
+If you'd like, I can switch to the runtime approach for you (moves global `vsce` install into `post-create.sh`) — it avoids placing private certs into the image but does require a successful mount or host-provided certs at runtime.
+
 Tell me which of these you'd like to do next and I'll implement it.
 
 ---

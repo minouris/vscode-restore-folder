@@ -2,7 +2,7 @@
   "name": "minouris-local-history-restore",
   "displayName": "Local History Restore",
   "description": "Restore deleted files and folders from VS Code's local history",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "minouris",
   "engines": {
     "vscode": "^1.105.0"
@@ -107,7 +107,9 @@
     "lint": "eslint src",
     "test": "vscode-test",
   "test:unit": "NODE_PATH=./test/helpers mocha -r ts-node/register 'src/test/**/*.ts' --exit",
-  "test:cov": "NODE_PATH=./test/helpers c8 mocha -r ts-node/register 'src/test/**/*.ts'"
+  "test:cov": "NODE_PATH=./test/helpers c8 mocha -r ts-node/register 'src/test/**/*.ts'",
+    "package": "npm run compile && node ./scripts/run-vsce-package.js package",
+    "package:ci": "npm ci && npm run compile && node ./scripts/run-vsce-package.js package"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
@@ -128,5 +130,7 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.9.3",
     "c8": "^8.0.0"
+    ,
+    "vsce": "^2.10.0"
   }
 }
