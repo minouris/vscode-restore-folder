@@ -112,7 +112,7 @@ Found a bug or have a feature request? Please visit our [GitHub repository](http
 - Submit pull requests
 - View the source code
 
-For developers interested in contributing, see the [development guide](https://github.com/minouris/vscode-restore-folder#development) in our repository.
+For developers interested in contributing, see the [CONTRIBUTING.md](CONTRIBUTING.md) guide in our repository.
 
 ## 📄 License
 
