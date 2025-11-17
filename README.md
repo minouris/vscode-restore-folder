@@ -1,251 +1,123 @@
-# VS Code Restore Folder
+# Local History Restore
 
-A small VS Code extension that discovers deleted files and folders from VS Code local history and allows restoring them into the workspace.
+Recover deleted files and folders from VS Code's local history with just a few clicks. Never lose your work again!
 
-This repository contains the extension source (TypeScript), focused unit tests (Mocha + Chai + Sinon), and test helpers to run the extension code under Node for fast unit testing.
+## ✨ Features
 
-## What's in the repo
-- `src/` - TypeScript source files for the extension
-- `src/test/` - Unit tests (Mocha + ts-node) with focused coverage across modules
-- `test/helpers/vscode/` - Minimal `vscode` runtime stub used by tests (loaded via NODE_PATH)
-- `package.json` - scripts and devDependencies used for build/test/package
+- **🔍 Auto-Discovery**: Automatically scans VS Code's local history to find your deleted files and folders
+- **📁 Tree View Integration**: Browse deleted items in a convenient tree view right in the Explorer sidebar
+- **⚡ Quick Restore**: Restore individual files, entire folders, or multiple selections with a single click
+- **🔄 Real-Time Updates**: Automatically detects when files are deleted and updates the view
+- **📊 Hierarchical Display**: Organizes deleted items by their original folder structure for easy navigation
+- **💾 Smart Recovery**: Always restores the most recent version before deletion
 
-## Development
+## 🚀 Getting Started
 
-Prerequisites: Node.js (16+ recommended), npm.
+### Installation
 
-Install dependencies:
+1. Open VS Code
+2. Go to the Extensions view (`Ctrl+Shift+X` / `Cmd+Shift+X`)
+3. Search for "Local History Restore"
+4. Click Install
 
-```bash
-npm install
-```
+### How to Use
 
-Build (TypeScript compile):
+#### View Deleted Items
 
-```bash
-npm run compile
-```
+The "Deleted Items" view appears automatically in the Explorer sidebar when you open a workspace. If you don't see it:
 
-Note: TypeScript compilation is used for packaging. Unit tests run via ts-node and do not require a full `npm run compile` step during development.
+1. Open the Explorer sidebar (`Ctrl+Shift+E` / `Cmd+Shift+E`)
+2. Look for the "Deleted Items" section
+3. Click the refresh button to scan for deleted files
 
-## Running unit tests
+#### Restore Files and Folders
 
-Tests are written in TypeScript and run under Mocha + ts-node. The test runner uses a small `vscode` stub located in `test/helpers/vscode` so tests run in plain Node.
+**Single Item:**
+- Click the restore icon (➕) next to any deleted file or folder in the tree view
 
-Run unit tests:
+**Multiple Items:**
+1. Select multiple items using `Ctrl+Click` / `Cmd+Click`
+2. Right-click and choose "Restore Selected Items"
 
-```bash
-# use NODE_PATH so `require('vscode')` resolves to the test helper
-NODE_PATH=./test/helpers mocha -r ts-node/register 'src/test/**/*.ts' --exit
-```
+**From Command Palette:**
+1. Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+2. Type "Local History Restore: Refresh" to scan for deleted items
+3. Use the tree view to restore items
 
-Run coverage (c8):
+## 📋 Requirements
 
-```bash
-NODE_PATH=./test/helpers c8 mocha -r ts-node/register 'src/test/**/*.ts'
-```
+- **VS Code**: Version 1.105.0 or higher
+- **Workspace**: Must have at least one workspace folder open
+- **File History**: Only works with files that were previously opened and edited in VS Code
 
-Notes:
-- Tests avoid touching your real filesystem when possible by using `mock-fs` or stubbing `FileSystemUtils`.
-- Some tests set up fake workspace folders by assigning `vscode.workspace.workspaceFolders` to test values.
+## 💡 How It Works
 
-## Project structure & key modules
+VS Code automatically creates backup copies of files as you edit them. This extension:
 
-- `backup-scanner.ts` — discovers entries in VS Code local history and creates `DeletedItem` records.
-- `deleted-items-provider.ts` — `TreeDataProvider` that exposes deleted items to the Explorer view.
-- `item-organizer.ts` — organizes flat lists into a hierarchical tree.
-- `file-restorer.ts` — logic to restore single files, empty directories, and recursively restore folders.
-- `file-watcher-manager.ts` — creates `FileSystemWatcher` objects and performs debounced refreshes.
-- `file-system-utils.ts` — small helpers wrapping fs operations and URI normalization.
+1. Scans VS Code's local history directory for backup files
+2. Identifies which files have been deleted from your workspace
+3. Displays them in an organized tree view
+4. Allows you to restore them with their most recent content
 
-## Packaging the extension (how to create a .vsix)
+**Note**: The extension can only recover files that VS Code has backed up. Files that were never opened in VS Code or were deleted before being saved cannot be recovered.
 
-High-level steps to create a VSIX for the extension:
+## ⚠️ Known Limitations
 
-1. Ensure `package.json` has the correct `name`, `version`, `publisher`, `engines.vscode` and `activationEvents` fields.
-2. Build/compile the TypeScript sources:
+- Only files that were opened and edited in VS Code can be restored (files with backup history)
+- Files deleted outside of VS Code that were never opened cannot be recovered
+- Backup locations vary by operating system and VS Code installation
+- Local history may be cleared by VS Code based on its internal retention policies
 
-```bash
-npm run compile
-```
-
-3. Install `vsce` if you don't have it (globally or use npx):
-
-```bash
-npx vsce package
-```
-
-This will produce a `.vsix` file which can be installed locally or published.
-
-Publishing to the Marketplace requires a publisher account and credentials; see `vsce` docs for details.
-
-Helpful packaging notes
-- Make sure `out/extension.js` (the compiled extension entry) is listed in your `files`/`package.json` if you restrict published files.
-- Prefer using `npx vsce package` (no global install required).
-- If you want CI-based publishing, create a GitHub Action that runs `npm ci`, `npm run compile`, and `npx vsce publish --pat $VSCE_PAT` with a Personal Access Token stored in secrets.
-
-## Troubleshooting tests
-- If tests fail under Node complaining about `vscode` not found, ensure you run tests with the `NODE_PATH=./test/helpers` prefix so the `vscode` stub is resolved.
-- If a test uses fake timers (sinon), ensure timers are restored in the test tear-down to avoid affecting other tests.
-
-## Next steps and packaging help
-If you'd like, I can:
-
-- Prepare a small `package.json` packaging script (e.g. `npm run package` that runs `npm run compile && npx vsce package`).
-- Add a CI workflow for building and optionally publishing the extension.
-- Run a final audit to ensure the `package.json` extension manifest fields (publisher, name, displayName, repository, engines.vscode) are present and valid.
-
-## Devcontainer: corporate TLS, CA certs and proxy build args
-
-If you're developing behind a corporate TLS-intercepting proxy (for example Zscaler) you'll need to ensure the devcontainer build and npm can validate your company's CA. Two options are supported in this repository:
-
-- Provide CA files in the repo build context under `.devcontainer/certs/` (the Dockerfile will copy and install these at build time).
-- Or mount host CA files into the container at runtime and run the post-create script which installs them into the container trust store.
-
-Build-time notes (current Dockerfile behavior)
-- The Dockerfile copies any files found in `.devcontainer/certs/` into `/usr/local/share/ca-certificates/`, ensures they have a `.crt` extension, concatenates them into `/usr/local/share/ca-certificates/combined-ca.crt`, runs `update-ca-certificates`, and sets the following environment variables so Node/npm use the combined CA bundle during build-time installs:
-
-	- `NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/combined-ca.crt`
-	- `NPM_CONFIG_CAFILE=/usr/local/share/ca-certificates/combined-ca.crt`
-
-Example: add your corporate root CA(s) to the repo (or symlink them) as PEM/CRT files:
-
-```bash
-mkdir -p .devcontainer/certs
-cp /path/to/your-corporate-root-ca.pem .devcontainer/certs/Zscaler_Root_CA.pem
-```
-
-Then build the devcontainer image (mirrors what VS Code Remote - Containers does):
-
-```bash
-docker build --no-cache -f .devcontainer/Dockerfile -t vrf-devcontainer:debug --build-arg NODE_VERSION=20 /path/to/repo
-```
-
-Proxy build args
-- If your environment requires an HTTP/HTTPS proxy to reach the registry, pass `HTTP_PROXY` and `HTTPS_PROXY` as build args. The Dockerfile forwards them into the image environment, for example:
-
-```bash
-docker build --no-cache \
-	--build-arg NODE_VERSION=20 \
-	--build-arg HTTP_PROXY="http://proxy.company:8080" \
-	--build-arg HTTPS_PROXY="http://proxy.company:8080" \
-	-f .devcontainer/Dockerfile -t vrf-devcontainer:debug /path/to/repo
-```
-
-Runtime (post-create) alternative
-- If you prefer not to include corporate certs in the image build context, you can mount them from the host into the container at runtime and let the `.devcontainer/post-create.sh` script install them and then run any npm installations (the script already looks for common paths and installs certs).
-
-Which approach to use?
-- Build-time install (default in this repo): ensures `npm install -g vsce` and other global installs succeed during the image build. Use this when you want a self-contained image that can run without host mounts.
-- Post-create (runtime) install: safer when you don't want secrets or corporate certs in the image build context. To prefer this, remove the global `vsce` install from the Dockerfile and add it to `post-create.sh` — the repo already contains a post-create script that installs certs and runs `npm install` for project dependencies.
-
-If you'd like, I can switch to the runtime approach for you (moves global `vsce` install into `post-create.sh`) — it avoids placing private certs into the image but does require a successful mount or host-provided certs at runtime.
-
-Tell me which of these you'd like to do next and I'll implement it.
-
----
-README last updated: automated by test/coverage iteration
-# Local History Restore - VS Code Extension
-
-A VS Code extension that helps you restore deleted files and folders from VS Code's local history. Never lose your work again!
-
-## Features
-
-- **List Deleted Items**: Scan your workspace to find files and folders that have been deleted but still exist in VS Code's local history
-- **Multi-Select Restoration**: Select multiple items for batch restoration
-- **Recursive Restoration**: Automatically restore entire folder structures
-- **Most Recent Version**: Always restores the most recent version before deletion
-- **Explorer Integration**: Convenient tree view in the Explorer sidebar
-
-## Usage
-
-### 1. List Deleted Files and Folders
-
-- Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
-- Run the command: `Local History Restore: List Deleted Files and Folders`
-- The extension will scan your workspace and display deleted items in the Explorer sidebar
-
-### 2. Restore Items
-
-**Option A: From the Tree View**
-1. Navigate to the "Deleted Items" view in the Explorer sidebar
-2. Click the restore icon (📁) next to any item to restore it individually
-3. Or select multiple items and use the context menu
-
-**Option B: Using Commands**
-1. After listing deleted items, use `Local History Restore: Restore Selected Items`
-2. Confirm the restoration when prompted
-
-## How It Works
-
-The extension scans VS Code's local history and backup files to identify:
-- Files that existed in your workspace but have been deleted
-- The most recent backup versions of those files
-- Folder structures that can be restored recursively
-
-VS Code automatically creates backup files when you edit documents, and this extension leverages those backups to restore your deleted work.
-
-## Requirements
-
-- VS Code 1.105.0 or higher
-- A workspace with files (the extension only works within workspaces)
-
-## Limitations
-
-- Can only restore files that were opened and edited in VS Code (and thus have backup files)
-- Cannot restore files that were deleted outside of VS Code without being opened first
-- Backup file locations may vary by operating system and VS Code installation
-
-## Extension Commands
+## 🎯 Extension Commands
 
 This extension contributes the following commands:
 
-- `minouris-local-history-restore.listDeleted`: List Deleted Files and Folders
-- `minouris-local-history-restore.restoreSelected`: Restore Selected Items
-- `minouris-local-history-restore.restoreItem`: Restore Individual Item
+| Command | Description |
+|---------|-------------|
+| `Local History Restore: Refresh` | Manually refresh the list of deleted items |
+| `Restore Item` | Restore a single file (available in tree view context menu) |
+| `Restore Folder` | Restore an entire folder with all its contents |
 
-## Development
+## 🆘 Troubleshooting
 
-To run this extension in development mode:
+**No deleted items showing up?**
+- Ensure you have a workspace folder open
+- Click the refresh button in the "Deleted Items" view
+- Verify that VS Code has created backups (check if files were edited in VS Code before deletion)
 
-1. Clone this repository
-2. Install dependencies: `npm install`
-3. Compile the TypeScript: `npm run compile`
-4. Press `F5` to open a new Extension Development Host window
-5. Test the extension in the new window
+**Restore not working?**
+- Check that you have write permissions in the target directory
+- Ensure the file path is not too long for your operating system
+- Try refreshing the view and attempting the restore again
 
-### Building
+## 📝 Release Notes
 
-```bash
-npm run compile
-```
+See the [CHANGELOG](CHANGELOG.md) for detailed release information.
 
-### Running Tests
-
-```bash
-npm test
-```
-
-## Release Notes
-
-### 0.0.1
+### Version 1.0.0
 
 - Initial release
-- Basic functionality to list and restore deleted files and folders
-- Explorer tree view integration
-- Multi-select restoration support
+- Automatic detection of deleted files and folders
+- Tree view integration in Explorer sidebar
+- Single and multi-item restoration
+- Real-time file system monitoring
+- Hierarchical folder organization
 
-## Contributing
+## 🤝 Contributing
 
-This extension is open source. Feel free to contribute by:
-- Reporting bugs
-- Suggesting new features  
-- Submitting pull requests
+Found a bug or have a feature request? Please visit our [GitHub repository](https://github.com/minouris/vscode-restore-folder) to:
 
-## License
+- Report issues
+- Suggest new features
+- Submit pull requests
+- View the source code
 
-[MIT License](LICENSE)
+For developers interested in contributing, see the [CONTRIBUTING.md](CONTRIBUTING.md) guide in our repository.
+
+## 📄 License
+
+This extension is licensed under the [MIT License](LICENSE).
 
 ---
 
-**Note**: This extension works by scanning VS Code's internal backup and history files. The availability of deleted files depends on VS Code's backup mechanisms and may vary based on your settings and usage patterns.
+**Enjoy using Local History Restore?** Please consider leaving a rating and review! Your feedback helps improve the extension.
